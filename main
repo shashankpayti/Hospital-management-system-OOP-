@@ -1,0 +1,269 @@
+import java.util.*;
+
+// ================= ABSTRACT CLASS =================
+abstract class Person {
+    protected String id;
+    protected String name;
+    protected int age;
+    protected String contact;
+
+    public Person(String id, String name, int age, String contact) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.contact = contact;
+    }
+
+    public String getId() { return id; }
+    public String getName() { return name; }
+
+    public abstract void displayInfo();
+}
+
+// ================= PATIENT =================
+class Patient extends Person {
+    private String disease;
+
+    public Patient(String id, String name, int age, String contact, String disease) {
+        super(id, name, age, contact);
+        this.disease = disease;
+    }
+
+    public String getDisease() { return disease; }
+
+    @Override
+    public void displayInfo() {
+        System.out.println("Patient ID: " + id +
+                " | Name: " + name +
+                " | Disease: " + disease);
+    }
+}
+
+// ================= DOCTOR =================
+class Doctor extends Person {
+    private String specialization;
+    private double consultationFee;
+
+    public Doctor(String id, String name, int age, String contact,
+                  String specialization, double consultationFee) {
+        super(id, name, age, contact);
+        this.specialization = specialization;
+        this.consultationFee = consultationFee;
+    }
+
+    public String getSpecialization() { return specialization; }
+    public double getConsultationFee() { return consultationFee; }
+
+    @Override
+    public void displayInfo() {
+        System.out.println("Doctor ID: " + id +
+                " | Name: " + name +
+                " | Specialization: " + specialization +
+                " | Fee: " + consultationFee);
+    }
+}
+
+// ================= APPOINTMENT =================
+class Appointment {
+    private String appointmentId;
+    private Patient patient;
+    private Doctor doctor;
+    private String date;
+
+    public Appointment(String appointmentId, Patient patient,
+                       Doctor doctor, String date) {
+        this.appointmentId = appointmentId;
+        this.patient = patient;
+        this.doctor = doctor;
+        this.date = date;
+    }
+
+    public void displayAppointment() {
+        System.out.println("Appointment ID: " + appointmentId +
+                " | Patient: " + patient.getName() +
+                " | Doctor: " + doctor.getName() +
+                " | Date: " + date);
+    }
+}
+
+// ================= BILLING =================
+class Billing {
+    public static void generateBill(Patient patient, Doctor doctor, double medicineCost) {
+        double total = doctor.getConsultationFee() + medicineCost;
+        System.out.println("\n------ BILL ------");
+        System.out.println("Patient: " + patient.getName());
+        System.out.println("Doctor Fee: " + doctor.getConsultationFee());
+        System.out.println("Medicine Cost: " + medicineCost);
+        System.out.println("Total Amount: " + total);
+        System.out.println("------------------\n");
+    }
+}
+
+// ================= MAIN SYSTEM =================
+public class HospitalManagementSystem {
+
+    static ArrayList<Patient> patients = new ArrayList<>();
+    static ArrayList<Doctor> doctors = new ArrayList<>();
+    static ArrayList<Appointment> appointments = new ArrayList<>();
+    static Scanner sc = new Scanner(System.in);
+
+    public static void main(String[] args) {
+
+        // Sample Doctors (Preloaded)
+        doctors.add(new Doctor("D1", "Dr. Sharma", 45, "9999999999", "Cardiology", 500));
+        doctors.add(new Doctor("D2", "Dr. Rao", 38, "8888888888", "Neurology", 600));
+
+        int choice;
+
+        do {
+            System.out.println("\n===== HOSPITAL MANAGEMENT SYSTEM =====");
+            System.out.println("1. Add Patient");
+            System.out.println("2. View Doctors");
+            System.out.println("3. Book Appointment");
+            System.out.println("4. View Appointments");
+            System.out.println("5. Generate Bill");
+            System.out.println("6. Exit");
+            System.out.print("Enter choice: ");
+
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+                case 1:
+                    addPatient();
+                    break;
+                case 2:
+                    viewDoctors();
+                    break;
+                case 3:
+                    bookAppointment();
+                    break;
+                case 4:
+                    viewAppointments();
+                    break;
+                case 5:
+                    generateBill();
+                    break;
+                case 6:
+                    System.out.println("Exiting system...");
+                    break;
+                default:
+                    System.out.println("Invalid choice!");
+            }
+
+        } while (choice != 6);
+    }
+
+    static void addPatient() {
+        System.out.print("Enter Patient ID: ");
+        String id = sc.nextLine();
+        System.out.print("Enter Name: ");
+        String name = sc.nextLine();
+        System.out.print("Enter Age: ");
+        int age = sc.nextInt();
+        sc.nextLine();
+        System.out.print("Enter Contact: ");
+        String contact = sc.nextLine();
+        System.out.print("Enter Disease: ");
+        String disease = sc.nextLine();
+
+        patients.add(new Patient(id, name, age, contact, disease));
+        System.out.println("Patient added successfully!");
+    }
+
+    static void viewDoctors() {
+        for (Doctor d : doctors) {
+            d.displayInfo();
+        }
+    }
+
+    static void bookAppointment() {
+        System.out.print("Enter Patient ID: ");
+        String pid = sc.nextLine();
+
+        Patient patient = null;
+        for (Patient p : patients) {
+            if (p.getId().equals(pid)) {
+                patient = p;
+                break;
+            }
+        }
+
+        if (patient == null) {
+            System.out.println("Patient not found!");
+            return;
+        }
+
+        viewDoctors();
+        System.out.print("Enter Doctor ID: ");
+        String did = sc.nextLine();
+
+        Doctor doctor = null;
+        for (Doctor d : doctors) {
+            if (d.getId().equals(did)) {
+                doctor = d;
+                break;
+            }
+        }
+
+        if (doctor == null) {
+            System.out.println("Doctor not found!");
+            return;
+        }
+
+        System.out.print("Enter Appointment Date: ");
+        String date = sc.nextLine();
+
+        String appointmentId = "A" + (appointments.size() + 1);
+        appointments.add(new Appointment(appointmentId, patient, doctor, date));
+
+        System.out.println("Appointment booked successfully!");
+    }
+
+    static void viewAppointments() {
+        for (Appointment a : appointments) {
+            a.displayAppointment();
+        }
+    }
+
+    static void generateBill() {
+        System.out.print("Enter Patient ID: ");
+        String pid = sc.nextLine();
+
+        Patient patient = null;
+        for (Patient p : patients) {
+            if (p.getId().equals(pid)) {
+                patient = p;
+                break;
+            }
+        }
+
+        if (patient == null) {
+            System.out.println("Patient not found!");
+            return;
+        }
+
+        viewDoctors();
+        System.out.print("Enter Doctor ID: ");
+        String did = sc.nextLine();
+
+        Doctor doctor = null;
+        for (Doctor d : doctors) {
+            if (d.getId().equals(did)) {
+                doctor = d;
+                break;
+            }
+        }
+
+        if (doctor == null) {
+            System.out.println("Doctor not found!");
+            return;
+        }
+
+        System.out.print("Enter Medicine Cost: ");
+        double medicineCost = sc.nextDouble();
+        sc.nextLine();
+
+        Billing.generateBill(patient, doctor, medicineCost);
+    }
+}
